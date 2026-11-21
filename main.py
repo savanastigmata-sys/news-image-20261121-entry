@@ -296,6 +296,17 @@ def ill_cyclone(cv, x, y, w, h):
     cv.line(x + 14, y + h - 22, x + 22, y + h - 10, (60, 90, 60))
 
 
+def ill_quake(cv, x, y, w, h):
+    _sky(cv, x, y, w, h, (210, 200, 170))
+    cv.fill_rect(x + 8, y + h - 20, 14, 14, (120, 100, 80))
+    cv.fill_rect(x + w - 26, y + h - 24, 16, 18, (100, 85, 70))
+    cv.fill_rect(x + w // 2 - 6, y + h - 16, 12, 10, (140, 120, 95))
+    cv.line(x + 4, y + h - 6, x + w // 3, y + h - 14, (60, 50, 40))
+    cv.line(x + w // 3, y + h - 14, x + 2 * w // 3, y + h - 4, (60, 50, 40))
+    cv.line(x + 2 * w // 3, y + h - 4, x + w - 4, y + h - 12, (60, 50, 40))
+    draw_text(cv, "sans_bold", 11, x + w // 2 - 8, y + 2, "6.7", RED)
+
+
 def ill_gavel(cv, x, y, w, h):
     _sky(cv, x, y, w, h, (226, 220, 200))
     cv.fill_rect(x + 10, y + h - 12, w - 20, 5, (120, 84, 50))
@@ -397,7 +408,7 @@ def ill_globe(cv, x, y, w, h):
 
 ILLS = {"strike": ill_strike, "ship": ill_ship, "talks": ill_talks,
         "chart": ill_chart_down, "space": ill_space, "cyclone": ill_cyclone,
-        "gavel": ill_gavel, "chip": ill_chip, "plane": ill_plane,
+        "quake": ill_quake, "gavel": ill_gavel, "chip": ill_chip, "plane": ill_plane,
         "flag": ill_flag, "missile": ill_missile, "court": ill_court,
         "mine": ill_mine, "summit": ill_summit, "science": ill_science,
         "sport": ill_sport, "globe": ill_globe}
@@ -587,7 +598,7 @@ def main():
 # Every item happened, or was first reported, on 21 Nov 2026 in at
 # least one time zone. CLAIM = one side's account, not confirmed.
 TIMELINE = [
-    ("~03:30 UTC", "UN killer-robot talks end, no ban"),
+    ("00:09 UTC", "Magnitude 6.7 quake shakes Peru"),
     ("05:50 UTC", "Second tanker hit off Hormuz"),
     ("11:28 UTC", "EU-Indonesia sign trade pact"),
     ("12:23 UTC", "COP31 goes into overtime"),
@@ -627,10 +638,10 @@ LEADS = [
      "title": "China tells Japan to change attitude",
      "summ": "Beijing says Tokyo must correct its words on Taiwan after Xi declines a formal meeting with PM Takaichi.",
      "source": "Taipei Times", "status": "CONFIRMED"},
-    {"n": 9, "region": "Asia", "ill": "cyclone", "lon": 85.0, "lat": 19.8,
-     "title": "Cyclone Akvan weakens over Odisha",
-     "summ": "The storm fades to a low after landfall at Gopalpur; 440,000 people were evacuated and no deaths are reported.",
-     "source": "Sambad English", "status": "CONFIRMED"},
+    {"n": 9, "region": "Americas", "ill": "quake", "lon": -75.9, "lat": -11.2,
+     "title": "Magnitude 6.7 quake shakes Peru",
+     "summ": "A magnitude 6.7 quake hits the central Andes near Junin, felt as far as Lima; no deaths or major damage are reported.",
+     "source": "AFP", "status": "CONFIRMED"},
     {"n": 10, "region": "Americas", "ill": "talks", "lon": -77.0, "lat": 38.9,
      "title": "Trump vows 10% credit-card rate cap",
      "summ": "Trump says he will work with the incoming Democratic Congress to cap card interest at 10%, a 2024 campaign promise.",
@@ -675,7 +686,7 @@ ALSO = [
     {"n": 27, "title": "Kim inspects school-equipment factory sites", "source": "KCNA"},
     {"n": 28, "title": "Modi tours three states, touts chips", "source": "IANS"},
     {"n": 29, "title": "Indonesia returns to ICAO Council", "source": "Antara"},
-    {"n": 30, "title": "Azerbaijan president welcomed in Hanoi", "source": "AZERTAC"},
+    {"n": 30, "title": "Voters oust sheriffs aiding ICE", "source": "AP"},
     {"n": 31, "title": "Thailand defends $123m HIMARS purchase", "source": "Bangkok Post"},
     {"n": 32, "title": "Awami League leaders' houses torched", "source": "Daily Star"},
     {"n": 33, "title": "Australia, China agree AI dialogue", "source": "PM Australia"},
@@ -684,18 +695,18 @@ ALSO = [
     {"n": 36, "title": "FBI probing hack of criminal-justice database", "source": "AP"},
     {"n": 37, "title": "Senate Democrats' leadership vote tests them early", "source": "AP"},
     {"n": 38, "title": "Oath Keepers founder Rhodes is done with Trump", "source": "AP"},
-    {"n": 39, "title": "Christian nationalists eye post-midterm opening", "source": "AP"},
+    {"n": 39, "title": "Canada joins NATO Innovation Fund", "source": "Business Wire"},
     {"n": 40, "title": "Trump says US close to Mexico trade deal", "source": "AP"},
     {"n": 41, "title": "Nasdaq wipes out 2026 gains in Friday rout", "source": "Le Monde"},
-    {"n": 42, "title": "Tanzania draw Costa Rica on U-17 debut", "source": "Africanews"},
+    {"n": 42, "title": "Cyclone Akvan weakens over Odisha", "source": "Sambad English"},
     {"n": 43, "title": "Somalia hosts Turkiye military chief", "source": "Goobjoog"},
-    {"n": 44, "title": "Dak'Art Biennale celebrates resilience", "source": "Africanews"},
-    {"n": 45, "title": "134 migrants intercepted in Gambia", "source": "Senenews"},
+    {"n": 44, "title": "Wolbachia mosquitoes cut dengue 69%", "source": "AP"},
+    {"n": 45, "title": "US-bound migrant caravan reaches Mexico", "source": "AFP"},
     {"n": 46, "title": "Algeria seizes 1.9 tonnes of cannabis", "source": "TSA Algerie"},
     {"n": 47, "title": "Malawi road deaths pass 1,000 this year", "source": "Nyasa Times"},
     {"n": 48, "title": "Ghana demands royal regalia return", "source": "MyJoyOnline"},
     {"n": 49, "title": "Ex-deputy president Mlambo-Ngcuka dies at 71", "source": "Reuters"},
-    {"n": 50, "title": "Seven wounded by Israeli fire in Gaza", "source": "QNA"},
+    {"n": 50, "title": "Record 13 Black Democrats join Congress", "source": "Reuters"},
 ]
 
 DATECHECK = ("Left out: Trump's press conference and the Friday market rout (both Fri 20 Nov); the ICJ Rohingya "
