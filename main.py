@@ -45,6 +45,20 @@ TINTS = {
     "Oceania": (198, 232, 230),
     "Global": (228, 228, 228),
 }
+GREEN = (34, 120, 60)
+PIN_COLOURS = {
+    "Europe": (60, 100, 180),
+    "Middle East": (220, 120, 40),
+    "Asia": (130, 80, 160),
+    "Americas": (180, 40, 40),
+    "Africa": (40, 130, 70),
+    "Oceania": (40, 140, 140),
+    "Global": (90, 90, 90),
+}
+TOPICS = {1: "UKRAINE WAR", 2: "UKRAINE WAR", 3: "BALTIC SEA", 4: "GULF TENSIONS",
+          5: "GAZA WAR", 6: "YEMEN WAR", 7: "TRADE", 8: "TAIWAN",
+          9: "EARTHQUAKE", 10: "ECONOMY", 11: "CARTELS", 12: "CLIMATE",
+          13: "SPACE", 14: "MATHS", 15: "FOOTBALL", 16: "NIGERIA"}
 
 _FONTS = _json.loads(_b64.b64decode(_FONT_B64))
 
@@ -458,9 +472,9 @@ def draw_map(cv, x, y, w, h, pins):
         for i in range(len(pts)):
             cv.line(pts[i][0], pts[i][1], pts[(i + 1) % len(pts)][0],
                     pts[(i + 1) % len(pts)][1], (150, 138, 108))
-    for num, lon, lat in pins:
+    for num, lon, lat, region in pins:
         px, py = _lonlat(lon, lat, x, y, w, h)
-        cv.disc(px, py, 8, RED)
+        cv.disc(px, py, 8, PIN_COLOURS[region])
         cv.ring(px, py, 8, (255, 255, 255), 1)
         s = str(num)
         draw_text(cv, "sans_bold", 9, px - int(text_width("sans_bold", 9, s) / 2),
@@ -474,13 +488,13 @@ CW = 968
 def draw_masthead(cv):
     cv.hline(MX, 12, CW, INK)
     cv.hline(MX, 14, CW, INK)
-    draw_centered(cv, "serif_bold", 56, 512, 22, "THE WORLD TODAY", INK)
-    draw_centered(cv, "serif_bold", 19, 512, 84,
-                  "SATURDAY, 21 NOVEMBER 2026", RED)
-    draw_centered(cv, "sans", 11, 512, 108,
+    draw_centered(cv, "sans_bold", 12, 512, 18, "THE WORLD TODAY", RED)
+    draw_centered(cv, "serif_bold", 48, 512, 36,
+                  "SATURDAY, 21 NOVEMBER 2026", INK)
+    draw_centered(cv, "sans", 11, 512, 92,
                   "ONE DAY OF WORLD NEWS, ONE PICTURE  \u00b7  50 STORIES  \u00b7  7 REGIONS  \u00b7  16 FIELDS",
                   MUTED)
-    cv.hline(MX, 126, CW, INK)
+    cv.hline(MX, 110, CW, INK)
 
 
 def draw_timeline(cv):
@@ -488,7 +502,7 @@ def draw_timeline(cv):
     draw_text(cv, "sans_bold", 10, MX, y, "THE DAY IN UTC", RED)
     draw_text(cv, "sans", 10, MX + 108, y,
               "as the day turned west \u2014 overnight to evening", MUTED)
-    bx, bw, bh = MX, 188, 34
+    bx, bw, bh = MX, 132, 34
     for i, (t, head) in enumerate(TIMELINE):
         x = bx + i * (bw + 7)
         cv.fill_rect(x, y + 14, bw, bh, CARD)
@@ -500,18 +514,25 @@ def draw_timeline(cv):
 
 
 def _meta(cv, x, y, max_w, region, source, status):
-    tag = region.upper() + "  \u00b7  " + source.upper()
-    if status == "CLAIM":
-        tag += "  \u00b7  CLAIM"
-    draw_text(cv, "sans_bold", 8, x, y, tag[:60], RED if status == "CLAIM" else MUTED)
+    draw_text(cv, "sans_bold", 8, x, y,
+              (region.upper() + "  \u00b7  " + source.upper())[:60], MUTED)
+    label = "CONFIRMED" if status == "CONFIRMED" else "CLAIM"
+    col = GREEN if status == "CONFIRMED" else RED
+    tw = int(text_width("sans_bold", 8, label))
+    px = int(x + max_w - tw - 8)
+    cv.fill_rect(px, y - 1, tw + 8, 10, col)
+    draw_text(cv, "sans_bold", 8, px + 4, y, label, (255, 255, 255))
 
 
 def draw_card(cv, s):
     n = s["n"]
     col, row = (n - 1) % 4, (n - 1) // 4
     x = MX + col * 246
-    y = 186 + row * 100
-    w, h = 238, 96
+    ys = [186, 294, 392, 490]
+    hs = [106, 94, 94, 94]
+    y, h = ys[row], hs[row]
+    w = 238
+    large = (row == 0)
     cv.fill_rect(x, y, w, h, CARD)
     cv.hline(x, y, w, RULE)
     cv.hline(x, y + h - 1, w, RULE)
@@ -519,12 +540,18 @@ def draw_card(cv, s):
     cv.vline(x + w - 1, y, h, RULE)
     cv.fill_rect(x, y, w, 13, TINTS[s["region"]])
     draw_text(cv, "sans_bold", 9, x + 4, y + 2, str(n), RED)
-    draw_text(cv, "sans_bold", 8, x + 18, y + 3, s["region"].upper(), INK)
-    ILLS[s["ill"]](cv, x + 4, y + 16, 58, 36)
-    tx = x + 66
-    for j, ln in enumerate(wrap("serif_bold", 12, s["title"], w - 70)):
-        draw_text(cv, "serif_bold", 12, tx, y + 17 + j * 13, ln, INK)
-    sy = y + 54
+    draw_text(cv, "sans_bold", 8, x + 18, y + 3,
+              s["region"].upper() + " \u00b7 " + TOPICS[n], INK)
+    if large:
+        ILLS[s["ill"]](cv, x + 4, y + 16, 58, 44)
+        tx, tsize, tw = x + 66, 12, w - 70
+        sy = y + 62
+    else:
+        ILLS[s["ill"]](cv, x + 4, y + 16, 44, 28)
+        tx, tsize, tw = x + 52, 11, w - 56
+        sy = y + 46
+    for j, ln in enumerate(wrap("serif_bold", tsize, s["title"], tw)[:2]):
+        draw_text(cv, "serif_bold", tsize, tx, y + 17 + j * (tsize + 2), ln, INK)
     for j, ln in enumerate(wrap("sans", 9, s["summ"], w - 8)[:3]):
         draw_text(cv, "sans", 9, x + 4, sy + j * 10, ln, INK)
     _meta(cv, x + 4, y + h - 11, w - 8, s["region"], s["source"], s["status"])
@@ -547,7 +574,8 @@ def draw_map_panel(cv):
     draw_text(cv, "sans_bold", 9, MX, my, "BY REGION", INK)
     for i, (name, cnt) in enumerate(REGION_TALLY):
         ry = my + 14 + i * 11
-        draw_text(cv, "sans", 9, MX, ry, name, INK)
+        cv.disc(MX + 5, ry + 4, 4, PIN_COLOURS[name.title()])
+        draw_text(cv, "sans", 9, MX + 14, ry, name, INK)
         c = str(cnt)
         draw_text(cv, "sans_bold", 9, MX + 156 - text_width("sans_bold", 9, c),
                   ry, c, RED)
@@ -558,7 +586,7 @@ def draw_map_panel(cv):
         col = i // 8
         row = i % 8
         draw_text(cv, "sans", 8, rx + col * 82, my + 14 + row * 11, f, INK)
-    pins = [(s["n"], s["lon"], s["lat"]) for s in LEADS]
+    pins = [(s["n"], s["lon"], s["lat"], s["region"]) for s in LEADS]
     draw_map(cv, MX + 164, my, 640, 140, pins)
 
 
@@ -588,6 +616,9 @@ def draw_datecheck(cv):
     y = 941
     cv.fill_rect(MX, y, CW, 48, (238, 232, 210))
     cv.hline(MX, y, CW, RED)
+    cv.hline(MX, y + 47, CW, RED)
+    cv.vline(MX, y, 48, RED)
+    cv.vline(MX + CW - 1, y, 48, RED)
     draw_text(cv, "sans_bold", 10, MX + 6, y + 4, "DATE CHECK", RED)
     lines = wrap("sans", 9, DATECHECK, CW - 12)
     for j, ln in enumerate(lines[:3]):
@@ -626,9 +657,11 @@ def main():
 # least one time zone. CLAIM = one side's account, not confirmed.
 TIMELINE = [
     ("00:09 UTC", "Magnitude 6.7 quake shakes Peru"),
+    ("00:18 UTC", "Riyadh intercepts missiles"),
     ("05:50 UTC", "Second tanker hit off Hormuz"),
     ("11:28 UTC", "EU-Indonesia sign trade pact"),
     ("12:23 UTC", "COP31 goes into overtime"),
+    ("16:00 UTC", "Canada joins NATO Fund"),
     ("18:24 UTC", "BepiColombo orbits Mercury"),
 ]
 
@@ -738,7 +771,8 @@ ALSO = [
 
 DATECHECK = ("Left out: Trump's press conference and the Friday market rout (both Fri 20 Nov); the ICJ Rohingya "
              "ruling (Thu 19 Nov); the Kerch Bridge collapse (16-18 Nov); the Sydney bomb-plot charges (Fri 20 Nov); "
-             "Bukele's third-term bid (Fri 20 Nov). Not yet decided at about 19:00 UTC: COP31's final deal.")
+             "Bukele's third-term bid (Fri 20 Nov); Bolsonaro in hospital and Salvadoran troops killed in Haiti "
+             "(both Fri 20 Nov). Not yet decided at about 19:00 UTC: COP31's final deal.")
 
 FOOTER = ("Every story happened or was first reported on Sat 21 Nov 2026. "
           "CLAIM = one side's account. "
