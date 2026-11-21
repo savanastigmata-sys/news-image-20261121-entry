@@ -478,7 +478,7 @@ def draw_masthead(cv):
     draw_centered(cv, "serif_bold", 19, 512, 84,
                   "SATURDAY, 21 NOVEMBER 2026", RED)
     draw_centered(cv, "sans", 11, 512, 108,
-                  "ONE DAY OF WORLD NEWS, ONE PICTURE  \u00b7  50 STORIES  \u00b7  7 REGIONS",
+                  "ONE DAY OF WORLD NEWS, ONE PICTURE  \u00b7  50 STORIES  \u00b7  7 REGIONS  \u00b7  16 FIELDS",
                   MUTED)
     cv.hline(MX, 126, CW, INK)
 
@@ -530,13 +530,36 @@ def draw_card(cv, s):
     _meta(cv, x + 4, y + h - 11, w - 8, s["region"], s["source"], s["status"])
 
 
+REGION_TALLY = [("EUROPE", 6), ("MIDDLE EAST", 6), ("ASIA", 11),
+                ("AMERICAS", 14), ("AFRICA", 7), ("OCEANIA", 2), ("GLOBAL", 4)]
+FIELDS = ["War", "Politics", "Diplomacy", "Trade", "Markets", "Climate",
+          "Space", "Science", "Sport", "Disaster", "Health", "AI & Tech",
+          "Law & Crime", "Migration", "Defence", "Heritage"]
+
+
 def draw_map_panel(cv):
     y = 588
     draw_text(cv, "sans_bold", 11, MX, y, "WHERE IT HAPPENED", RED)
     draw_text(cv, "sans", 10, MX + 150, y,
               "numbered pins are the 16 lead stories above", MUTED)
+    my = y + 15
+    # left tally: stories per region (counts verified against the 50 items)
+    draw_text(cv, "sans_bold", 9, MX, my, "BY REGION", INK)
+    for i, (name, cnt) in enumerate(REGION_TALLY):
+        ry = my + 14 + i * 11
+        draw_text(cv, "sans", 9, MX, ry, name, INK)
+        c = str(cnt)
+        draw_text(cv, "sans_bold", 9, MX + 156 - text_width("sans_bold", 9, c),
+                  ry, c, RED)
+    # right list: the 16 fields covered, two columns
+    rx = MX + CW - 160
+    draw_text(cv, "sans_bold", 9, rx, my, "16 FIELDS", INK)
+    for i, f in enumerate(FIELDS):
+        col = i // 8
+        row = i % 8
+        draw_text(cv, "sans", 8, rx + col * 82, my + 14 + row * 11, f, INK)
     pins = [(s["n"], s["lon"], s["lat"]) for s in LEADS]
-    draw_map(cv, MX, y + 15, CW, 140, pins)
+    draw_map(cv, MX + 164, my, 640, 140, pins)
 
 
 def draw_also(cv):
@@ -554,6 +577,10 @@ def draw_also(cv):
         line = s["title"] + " \u2014 " + s["source"]
         for ln in wrap("sans", 9, line, col_w - 22):
             draw_text(cv, "sans", 9, x + 20, yy, ln, INK)
+            if s.get("claim"):
+                draw_text(cv, "sans_bold", 9,
+                          x + 20 + text_width("sans", 9, ln) + 3, yy,
+                          "\u00b7 CLAIM", RED)
             break
 
 
@@ -678,8 +705,8 @@ ALSO = [
     {"n": 19, "title": "Costa proposes EU digital tax of 3%", "source": "Reuters"},
     {"n": 20, "title": "Spain extends banking tax to fund housing", "source": "Reuters"},
     {"n": 21, "title": "Israeli drone fire kills four in Gaza", "source": "QNA"},
-    {"n": 22, "title": "Iran claims tanker hit a mine, MQ-9 downed", "source": "Reuters"},
-    {"n": 23, "title": "Iran MP says Tehran has effectively left NPT", "source": "TASS"},
+    {"n": 22, "title": "Iran claims tanker hit a mine, MQ-9 downed", "source": "Reuters", "claim": True},
+    {"n": 23, "title": "Iran MP says Tehran has effectively left NPT", "source": "TASS", "claim": True},
     {"n": 24, "title": "Singapore, China plan 20-plus deals", "source": "MFA Singapore"},
     {"n": 25, "title": "South Korea's Lee urges speed in AI race", "source": "Reuters"},
     {"n": 26, "title": "Air Niugini jet lands safely in Davao", "source": "AP"},
@@ -692,7 +719,7 @@ ALSO = [
     {"n": 33, "title": "Australia, China agree AI dialogue", "source": "PM Australia"},
     {"n": 34, "title": "Hong Kong publishes crypto licensing bill", "source": "Cointelegraph"},
     {"n": 35, "title": "Trump orders contractors to check with White House", "source": "AP"},
-    {"n": 36, "title": "FBI probing suspected hack of criminal-justice database", "source": "AP"},
+    {"n": 36, "title": "FBI probing suspected hack of criminal-justice database", "source": "AP", "claim": True},
     {"n": 37, "title": "Senate Democrats' leadership vote tests them early", "source": "AP"},
     {"n": 38, "title": "Oath Keepers founder Rhodes is done with Trump", "source": "AP"},
     {"n": 39, "title": "Canada joins NATO Innovation Fund", "source": "Business Wire"},
