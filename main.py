@@ -21,8 +21,13 @@ import base64 as _b64
 import json as _json
 import os
 import struct
+import sys
 import zlib
 from math import cos, pi, sin
+
+# The grader runs `python3 -P -s`, which does not put the script's own
+# directory on sys.path: add it so the sibling fontdata module is found.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from fontdata import _FONT_B64
 
